@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { ArrowUpRightIcon } from "@/components/icons";
+import { RegistrationForm } from "@/components/RegistrationForm";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Container, Eyebrow, LogoBadge, OneTimePill } from "@/components/ui";
 import { MEMBERSHIP_PRICE, membership } from "@/lib/content";
-import {
-  INSTAGRAM_HANDLE,
-  INSTAGRAM_URL,
-  MEMBERSHIP_FORM_EMBED_URL,
-  MEMBERSHIP_FORM_URL,
-  SITE_NAME,
-} from "@/lib/site";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL, SITE_NAME } from "@/lib/site";
 
 const title = `Be a member — ${SITE_NAME}`;
 const description = `Register for IDLE Sets: a one-time ${MEMBERSHIP_PRICE} payment for 3,500+ Interior Design board exam reviewer sets.`;
@@ -132,50 +126,16 @@ function FormCard() {
         className="absolute inset-0 rounded-3xl border-[1.5px] border-ink bg-orange [transform:rotate(1.5deg)_translate(8px,8px)] max-sm:hidden"
       />
       <div className="relative overflow-hidden rounded-3xl border-[1.5px] border-ink bg-paper shadow-[0_30px_60px_-30px_rgba(22,20,18,0.45)]">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b-[1.5px] border-line-soft px-5 py-4">
+        <div className="flex items-center justify-between gap-4 border-b-[1.5px] border-line-soft px-5 py-4 sm:px-7">
           <div className="flex items-center gap-2.5">
             <LogoBadge size="sm" />
-            <span className="text-[13px] font-extrabold tracking-[0.08em]">
-              MEMBERSHIP FORM
-            </span>
+            <h2 className="text-[13px] font-extrabold tracking-[0.08em]">MEMBERSHIP FORM</h2>
           </div>
-          <a
-            href={MEMBERSHIP_FORM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[14px] font-bold hover:text-rust"
-          >
-            Open in a new tab
-            <ArrowUpRightIcon size={16} />
-            <span className="sr-only">(opens Google Forms)</span>
-          </a>
+          <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted">
+            {MEMBERSHIP_PRICE} · one-time
+          </span>
         </div>
-        <p className="border-b-[1.5px] border-line-soft bg-sand px-5 py-3 text-[14px] leading-[1.45] text-body">
-          The form asks you to sign in to Google. If it doesn&apos;t load
-          below, or keeps asking you to sign in,{" "}
-          <a
-            href={MEMBERSHIP_FORM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-ink underline underline-offset-2 hover:text-rust"
-          >
-            open it in a new tab
-          </a>
-          .
-        </p>
-        <div className="relative">
-          <p
-            aria-hidden="true"
-            className="absolute inset-x-0 top-24 text-center text-[15px] font-semibold text-muted"
-          >
-            Loading the form…
-          </p>
-          <iframe
-            src={MEMBERSHIP_FORM_EMBED_URL}
-            title="IDLE Sets membership form (Google Forms)"
-            className="relative block h-[min(1100px,calc(100svh-6rem))] min-h-[640px] w-full border-0"
-          />
-        </div>
+        <RegistrationForm />
       </div>
     </div>
   );

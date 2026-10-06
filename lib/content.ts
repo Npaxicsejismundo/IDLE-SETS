@@ -127,32 +127,76 @@ export const faqs: Faq[] = [
   },
   {
     question: "How do I join?",
-    answer: `Fill out the membership form: sign in with your personal Google account, pay ${MEMBERSHIP_PRICE} through the InstaPay QR code, and upload your proof of payment. We'll give your email access once your registration is processed.`,
+    answer: `Fill out the membership form on this site: pay ${MEMBERSHIP_PRICE} through the InstaPay QR code, enter your details, and upload your proof of payment. We'll give your email access once your registration is processed.`,
     link: { href: "/subscribe", label: "Go to the membership form" },
   },
 ];
 
-/** /subscribe page copy. Facts mirror the Google Form's own description. */
+/** /subscribe page copy. Facts mirror the client's old Google Form. */
 export const membership = {
   summary:
     "One payment unlocks 3,500+ Interior Design board exam reviewer sets: tests and questionnaires covering history, construction and utilities, materials, professional practice, furniture design and construction, and color theory.",
   steps: [
     {
-      title: "Sign in with your personal Google account",
-      body: "The form records your email, and that's where your access goes.",
-    },
-    {
-      title: "Enter your name and school",
-      body: "Your full name and the school you attended.",
+      title: "Fill in your details",
+      body: "Use your personal email. That's where your access goes.",
     },
     {
       title: `Pay ${MEMBERSHIP_PRICE}`,
-      body: "Scan the InstaPay QR code in the form. Transfer fees may apply.",
+      body: "Scan or upload the InstaPay QR code in your bank or e-wallet app. Transfer fees may apply.",
     },
     {
       title: "Upload your proof of payment",
-      body: "A screenshot or PDF, up to 10 MB. Agree to the terms, then submit.",
+      body: "A screenshot or PDF of your receipt, up to 10 MB.",
+    },
+    {
+      title: "Get your access",
+      body: "We check your payment and give your email access once your registration is processed.",
     },
   ],
   note: "All payments are final once your registration is processed.",
 };
+
+/** Payment QR shown in the form. Replace the image in /public to change it. */
+export const payment = {
+  qrSrc: "/idle-sets-payment-qr.png",
+  qrWidth: 367,
+  qrHeight: 420,
+  qrAlt: `BPI InstaPay QR code for IDLE Sets, ${MEMBERSHIP_PRICE}`,
+};
+
+/** Shown next to the first checkbox in the form. */
+export const noRefundPolicy =
+  "By proceeding with my registration, I confirm that I understand and agree to the no-refund policy. All payments are final once the registration has been processed.";
+
+/** Membership Terms & Guidelines, word for word from the old Google Form. */
+export const membershipTerms = [
+  {
+    heading: "Automatic Termination of Membership",
+    paragraphs: [
+      "Upon confirmation or official recording of the member as a board exam passer, the member's membership shall be considered terminated effective immediately, regardless of the remaining membership period, subscription duration, or unused access.",
+    ],
+  },
+  {
+    heading: "Access and Use of Membership Materials",
+    paragraphs: [
+      "Membership access is personal and non-transferable. Members are prohibited from sharing, distributing, reproducing, reselling, uploading, or otherwise making membership-exclusive materials available to non-members without prior authorization from IDLE SETS.",
+      "Violation of this provision may result in immediate termination of membership and/or other appropriate action.",
+    ],
+  },
+  {
+    heading: "Changes to Membership Terms",
+    paragraphs: [
+      "IDLE SETS reserves the right to amend, modify, or update these Membership Terms & Guidelines when necessary. Members will be subject to the terms in effect during their membership period.",
+    ],
+  },
+  {
+    heading: "Acceptance of Terms",
+    paragraphs: [
+      "By enrolling in or continuing to use the IDLE SETS membership, you acknowledge that you have read, understood, and agreed to these Membership Terms & Guidelines, including the automatic termination of membership upon being officially recorded or confirmed as a board exam passer.",
+    ],
+  },
+];
+
+export const membershipTermsClosing =
+  "By proceeding with membership, you agree to these terms in full.";
