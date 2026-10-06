@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { heroStats } from "@/lib/content";
 import { ArrowRightIcon } from "./icons";
 import { QuizCard } from "./QuizCard";
@@ -31,13 +32,13 @@ export function Hero() {
             accuracy, and readiness before board day.
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
-            <a
-              href="#join"
+            <Link
+              href="/subscribe"
               className="inline-flex h-[58px] items-center gap-3 rounded-full bg-ink px-[30px] text-[17px] font-bold text-white hover:bg-coal"
             >
               Be a member now
               <ArrowRightIcon size={20} />
-            </a>
+            </Link>
             <OneTimePill size="lg" />
           </div>
           <div className="flex flex-wrap gap-x-12 gap-y-4 border-t-[1.5px] border-line-strong pt-6">

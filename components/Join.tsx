@@ -1,6 +1,7 @@
-import { membershipPerks } from "@/lib/content";
+import Link from "next/link";
+import { MEMBERSHIP_PRICE, membershipPerks } from "@/lib/content";
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/site";
-import { ChatIcon, CheckIcon } from "./icons";
+import { ArrowRightIcon, CheckIcon } from "./icons";
 import { Container, OneTimePill } from "./ui";
 
 export function Join() {
@@ -28,15 +29,20 @@ export function Join() {
             <OneTimePill size="sm" />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <strong className="font-display text-[52px] leading-[0.95] font-normal uppercase">
               One payment.
               <br />
               Full access.
             </strong>
-            <span className="text-[15px] text-muted">
-              No monthly fees. Message us for the current rate.
-            </span>
+            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-display text-[44px] leading-none text-flame">
+                {MEMBERSHIP_PRICE}
+              </span>
+              <span className="text-[15px] text-muted">
+                paid once. No monthly fees.
+              </span>
+            </p>
           </div>
 
           <ul className="flex flex-col gap-3.5 border-t-[1.5px] border-line-soft pt-[22px] text-[17px]">
@@ -48,16 +54,23 @@ export function Join() {
             ))}
           </ul>
 
-          <a
-            href={INSTAGRAM_URL}
+          <Link
+            href="/subscribe"
             className="flex h-[60px] items-center justify-center gap-3 rounded-full bg-ink text-[18px] font-bold text-white hover:bg-coal"
           >
-            <ChatIcon size={22} />
-            Message us to join
-          </a>
+            Register now
+            <ArrowRightIcon size={22} />
+          </Link>
           <p className="-mt-2 text-center text-[14px] text-muted">
-            Send us a DM on Instagram at {INSTAGRAM_HANDLE}. We&apos;ll reply
-            with payment options and your access details.
+            Fill out the membership form and upload your proof of payment.
+            Questions?{" "}
+            <a
+              href={INSTAGRAM_URL}
+              className="font-semibold text-ink underline underline-offset-2 hover:text-rust"
+            >
+              DM us at {INSTAGRAM_HANDLE}
+            </a>
+            .
           </p>
         </div>
       </Container>

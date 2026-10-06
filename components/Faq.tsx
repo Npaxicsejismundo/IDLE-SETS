@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { faqs } from "@/lib/content";
 import { PlusIcon } from "./icons";
 import { Container, Eyebrow } from "./ui";
@@ -26,6 +27,17 @@ export function Faq() {
               </summary>
               <p className="mt-3.5 max-w-[40em] text-[17px] text-body">
                 {faq.answer}
+                {faq.link && (
+                  <>
+                    {" "}
+                    <Link
+                      href={faq.link.href}
+                      className="font-semibold text-ink underline underline-offset-2 hover:text-rust"
+                    >
+                      {faq.link.label}
+                    </Link>
+                  </>
+                )}
               </p>
             </details>
           ))}

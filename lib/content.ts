@@ -1,11 +1,15 @@
 // Copy that repeats as lists lives here so it can be edited in one place.
 
+/** Membership price, shown on the landing page and /subscribe. */
+export const MEMBERSHIP_PRICE = "₱500";
+
+// "/#…" so the links also work from /subscribe.
 export const navLinks = [
-  { href: "#method", label: "Method" },
-  { href: "#results", label: "Results" },
-  { href: "#how", label: "How it works" },
-  { href: "#join", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#method", label: "Method" },
+  { href: "/#results", label: "Results" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#join", label: "Pricing" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export const heroStats = [
@@ -67,7 +71,7 @@ export const steps = [
   {
     number: "01",
     title: "Join once",
-    body: "A one-time payment unlocks the full collection. No subscriptions, no renewals.",
+    body: `A one-time ${MEMBERSHIP_PRICE} payment unlocks the full collection. No subscriptions, no renewals.`,
   },
   {
     number: "02",
@@ -99,7 +103,14 @@ export const affirmations = [
   "You are ready",
 ];
 
-export const faqs = [
+export type Faq = {
+  question: string;
+  answer: string;
+  /** Optional link shown after the answer. */
+  link?: { href: string; label: string };
+};
+
+export const faqs: Faq[] = [
   {
     question: "Which exam is IDLE Sets for?",
     answer:
@@ -107,7 +118,7 @@ export const faqs = [
   },
   {
     question: "Is it a subscription?",
-    answer: "No. Membership is a one-time payment.",
+    answer: `No. Membership is a one-time payment of ${MEMBERSHIP_PRICE}, with no monthly fees.`,
   },
   {
     question: "How is this different from reading a reviewer?",
@@ -116,7 +127,32 @@ export const faqs = [
   },
   {
     question: "How do I join?",
-    answer:
-      "Send us a message on Instagram at @idlesets. We'll walk you through payment and send your access details.",
+    answer: `Fill out the membership form: sign in with your personal Google account, pay ${MEMBERSHIP_PRICE} through the InstaPay QR code, and upload your proof of payment. We'll give your email access once your registration is processed.`,
+    link: { href: "/subscribe", label: "Go to the membership form" },
   },
 ];
+
+/** /subscribe page copy. Facts mirror the Google Form's own description. */
+export const membership = {
+  summary:
+    "One payment unlocks 3,500+ Interior Design board exam reviewer sets: tests and questionnaires covering history, construction and utilities, materials, professional practice, furniture design and construction, and color theory.",
+  steps: [
+    {
+      title: "Sign in with your personal Google account",
+      body: "The form records your email, and that's where your access goes.",
+    },
+    {
+      title: "Enter your name and school",
+      body: "Your full name and the school you attended.",
+    },
+    {
+      title: `Pay ${MEMBERSHIP_PRICE}`,
+      body: "Scan the InstaPay QR code in the form. Transfer fees may apply.",
+    },
+    {
+      title: "Upload your proof of payment",
+      body: "A screenshot or PDF, up to 10 MB. Agree to the terms, then submit.",
+    },
+  ],
+  note: "All payments are final once your registration is processed.",
+};

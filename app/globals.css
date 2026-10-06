@@ -30,10 +30,13 @@
   }
 }
 
-/* Fonts come from next/font/local CSS variables set on <html>. */
+/* Fonts come from next/font/local CSS variables set on <html>.
+   The -ext fonts come first but only cover latin-extended characters
+   (unicode-range), so everything else still uses the main files. */
 @theme inline {
-  --font-sans: var(--font-archivo), "Helvetica Neue", Helvetica, sans-serif;
-  --font-display: var(--font-anton), Impact, sans-serif;
+  --font-sans: var(--font-archivo-ext), var(--font-archivo), "Helvetica Neue",
+    Helvetica, sans-serif;
+  --font-display: var(--font-anton-ext), var(--font-anton), Impact, sans-serif;
   --font-hand: var(--font-caveat), "Bradley Hand", cursive;
 }
 
