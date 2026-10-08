@@ -1,0 +1,6 @@
+question,a,b,c,d,answer,explanation
+Which color scheme uses three hues spaced equally around the color wheel?,Analogous,Complementary,Triadic,Split-complementary,C,"Triadic schemes use three hues 120° apart, like red, yellow and blue. Analogous uses neighboring hues; complementary uses opposites."
+"In the Munsell color system, which attribute describes how light or dark a color is?",Hue,Value,Chroma,Saturation,B,"Munsell describes a color by hue, value and chroma. Value is its lightness; chroma is its intensity."
+Pairing one hue with the two hues on either side of its complement creates which scheme?,Split-complementary,Tetradic,Monochromatic,Analogous,A,"Split-complementary takes one hue plus the two neighbors of its complement: strong contrast that is easier to balance than a direct complement."
+Adding white to a hue produces a:,Shade,Tone,Tint,Neutral,C,"A tint is a hue plus white. A shade adds black, and a tone adds gray."
+"On the traditional red-yellow-blue color wheel, what is the complement of red?",Orange,Green,Violet,Blue,B,Complements sit directly opposite each other on the wheel. Red's opposite is green.

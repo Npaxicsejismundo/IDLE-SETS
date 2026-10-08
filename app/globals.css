@@ -20,6 +20,9 @@
   --color-line: #ddd7cd;
   --color-line-strong: #d9d2c6;
   --color-line-soft: #e4ded4;
+  --color-track: #e1dacf;
+  --color-inactive: #6b645b;
+  --color-mist: #d6cfc5;
 
   --animate-marquee: marquee 48s linear infinite;
 

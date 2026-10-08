@@ -90,13 +90,15 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
-          <Link
-            href="/subscribe"
-            onClick={close}
-            className="flex h-[58px] items-center justify-center rounded-full bg-ink text-[17px] font-bold text-white hover:bg-coal"
-          >
-            Be a member now
-          </Link>
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/subscribe"
+              onClick={close}
+              className="flex h-[58px] items-center justify-center rounded-full bg-ink text-[17px] font-bold text-white hover:bg-coal"
+            >
+              Be a member now
+            </Link>
+          </div>
         </Container>
       </div>
     </header>

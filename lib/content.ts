@@ -3,6 +3,12 @@
 /** Membership price, shown on the landing page and /subscribe. */
 export const MEMBERSHIP_PRICE = "₱500";
 
+/**
+ * How many devices a member can stay signed in on at once. Signing in on one
+ * more signs out the oldest, which keeps a shared code from spreading.
+ */
+export const MAX_MEMBER_DEVICES = 3;
+
 // "/#…" so the links also work from /subscribe.
 export const navLinks = [
   { href: "/#method", label: "Method" },
@@ -127,7 +133,7 @@ export const faqs: Faq[] = [
   },
   {
     question: "How do I join?",
-    answer: `Fill out the membership form on this site: pay ${MEMBERSHIP_PRICE} through the InstaPay QR code, enter your details, and upload your proof of payment. We'll give your email access once your registration is processed.`,
+    answer: `Fill out the membership form on this site: pay ${MEMBERSHIP_PRICE} through the InstaPay QR code, enter your details, and upload your proof of payment. Once your registration is processed, we'll send you an access code to sign in and open the sets.`,
     link: { href: "/subscribe", label: "Go to the membership form" },
   },
 ];
@@ -151,7 +157,7 @@ export const membership = {
     },
     {
       title: "Get your access",
-      body: "We check your payment and give your email access once your registration is processed.",
+      body: "We check your payment, then send you an access code to sign in and open the sets.",
     },
   ],
   note: "All payments are final once your registration is processed.",

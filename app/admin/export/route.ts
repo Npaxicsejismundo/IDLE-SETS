@@ -1,3 +1,4 @@
+import { formatAccessCode } from "@/lib/access-codes";
 import { isAdmin } from "@/lib/admin-auth";
 import { isStatus, listRegistrations } from "@/lib/registrations";
 import { siteUrl } from "@/lib/site";
@@ -39,7 +40,16 @@ export async function GET(request: Request) {
 
   const base = siteUrl();
   const lines = [
-    ["Submitted (Manila)", "Full name", "Email", "School", "Status", "Proof of payment"].map(cell).join(","),
+    [
+      "Submitted (Manila)",
+      "Full name",
+      "Email",
+      "School",
+      "Status",
+      "Access code",
+      "Last opened the sets (Manila)",
+      "Proof of payment",
+    ].map(cell).join(","),
     ...rows.map((r) =>
       [
         manila(r.createdAt),
@@ -47,6 +57,8 @@ export async function GET(request: Request) {
         r.email,
         r.school,
         STATUS_LABEL[r.status],
+        r.status === "granted" && r.accessCode ? formatAccessCode(r.accessCode) : "",
+        r.lastSeenAt ? manila(r.lastSeenAt) : "",
         new URL(`/admin/proofs/${r.id}`, base).toString(),
       ]
         .map(cell)

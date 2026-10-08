@@ -1,5 +1,6 @@
 import "server-only";
-import { MEMBERSHIP_PRICE } from "./content";
+import { formatAccessCode } from "./access-codes";
+import { MAX_MEMBER_DEVICES, MEMBERSHIP_PRICE } from "./content";
 import type { Registration } from "./registrations";
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL, SITE_NAME, siteUrl } from "./site";
 
@@ -137,5 +138,52 @@ export async function sendRegistrationEmails(registration: Registration) {
   const results = await Promise.allSettled(jobs);
   for (const result of results) {
     if (result.status === "rejected") console.error("[email] send failed:", result.reason);
+  }
+}
+
+/** Sign-in page link, with the member's email filled in. */
+export function memberLoginUrl(email?: string): string {
+  const url = new URL("/members/login", siteUrl());
+  if (email) url.searchParams.set("email", email);
+  return url.toString();
+}
+
+/**
+ * Emails a member their access code. Sent when you grant access (or make a
+ * new code) in /admin, only if EMAIL_FROM is set. Returns whether it was sent.
+ */
+export async function sendAccessEmail(
+  registration: Registration,
+  options: { newCode?: boolean } = {},
+): Promise<boolean> {
+  if (!registrantEmailEnabled() || !registration.accessCode) return false;
+  const code = formatAccessCode(registration.accessCode);
+  const loginUrl = memberLoginUrl(registration.email);
+  const firstName = registration.fullName.trim().split(/\s+/)[0];
+  const intro = options.newCode
+    ? "Here's your new access code. Your old code no longer works."
+    : `Your ${SITE_NAME} membership is active. You can now open every reviewer set.`;
+  try {
+    await send({
+      from: process.env.EMAIL_FROM as string,
+      to: [registration.email],
+      replyTo: adminRecipients(),
+      subject: options.newCode
+        ? `Your new ${SITE_NAME} access code`
+        : `You're in: your ${SITE_NAME} access code`,
+      html: layout(`
+<p style="margin:0 0 16px;font-size:22px;font-weight:800">${options.newCode ? "New access code" : `You're in, ${escapeHtml(firstName)}!`}</p>
+<p style="margin:0 0 16px">${escapeHtml(intro)}</p>
+<p style="margin:0 0 6px">Sign in with <b>${escapeHtml(registration.email)}</b> and this code:</p>
+<p style="margin:0 0 20px;font-size:30px;font-weight:800;letter-spacing:0.12em;font-family:Menlo,Consolas,monospace">${escapeHtml(code)}</p>
+<p style="margin:0 0 20px"><a href="${loginUrl}" style="display:inline-block;background:#161412;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:999px">Open your sets</a></p>
+<p style="margin:0 0 16px;font-size:14px;color:#57524b">Your access is personal: please don't share your code. You can stay signed in on up to ${MAX_MEMBER_DEVICES} devices.</p>
+<p style="margin:0;font-size:14px;color:#57524b">Questions? Message us on Instagram at <a href="${INSTAGRAM_URL}" style="color:#c24000">${INSTAGRAM_HANDLE}</a>.</p>`),
+      text: `${options.newCode ? "New access code" : `You're in, ${firstName}!`}\n\n${intro}\n\nSign in with ${registration.email} and this code: ${code}\n\nOpen your sets: ${loginUrl}\n\nYour access is personal: please don't share your code. You can stay signed in on up to ${MAX_MEMBER_DEVICES} devices.\n\nQuestions? Message us on Instagram at ${INSTAGRAM_HANDLE}: ${INSTAGRAM_URL}`,
+    });
+    return true;
+  } catch (error) {
+    console.error("[email] access email failed:", error);
+    return false;
   }
 }

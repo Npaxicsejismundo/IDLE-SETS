@@ -1,4 +1,5 @@
 import "server-only";
+import { newAccessCode } from "./access-codes";
 import { query } from "./db";
 
 export const STATUSES = ["pending", "granted", "rejected"] as const;
@@ -20,6 +21,10 @@ export type Registration = {
   proofSize: number;
   status: RegistrationStatus;
   statusChangedAt: Date | null;
+  /** Made when access is granted; the member signs in with it. */
+  accessCode: string | null;
+  /** Last time the member used the members area. */
+  lastSeenAt: Date | null;
 };
 
 type Row = {
@@ -34,10 +39,13 @@ type Row = {
   proof_size: number;
   status: RegistrationStatus;
   status_changed_at: Date | null;
+  access_code: string | null;
+  last_seen_at: Date | null;
 };
 
 const COLUMNS = `id::text AS id, created_at, email, full_name, school, proof_url,
-  proof_pathname, proof_content_type, proof_size, status, status_changed_at`;
+  proof_pathname, proof_content_type, proof_size, status, status_changed_at, access_code,
+  member_last_seen_at AS last_seen_at`;
 
 function toRegistration(row: Row): Registration {
   return {
@@ -52,8 +60,16 @@ function toRegistration(row: Row): Registration {
     proofSize: row.proof_size,
     status: row.status,
     statusChangedAt: row.status_changed_at,
+    accessCode: row.access_code,
+    lastSeenAt: row.last_seen_at,
   };
 }
+
+function isUniqueViolation(error: unknown): boolean {
+  return (error as { code?: string } | null)?.code === "23505";
+}
+
+const ID_PATTERN = /^\d{1,18}$/;
 
 export async function createRegistration(input: {
   email: string;
@@ -130,15 +146,87 @@ export async function countByStatus(): Promise<Record<RegistrationStatus | "all"
 }
 
 export async function getRegistration(id: string): Promise<Registration | null> {
-  if (!/^\d{1,18}$/.test(id)) return null;
+  if (!ID_PATTERN.test(id)) return null;
   const rows = await query<Row>(`SELECT ${COLUMNS} FROM registrations WHERE id = $1`, [id]);
   return rows[0] ? toRegistration(rows[0]) : null;
 }
 
-export async function setRegistrationStatus(id: string, status: RegistrationStatus) {
-  if (!/^\d{1,18}$/.test(id)) return;
-  await query(
-    `UPDATE registrations SET status = $2, status_changed_at = now() WHERE id = $1`,
-    [id, status],
+/** Runs an update that sets a new access code, retrying if the code is taken. */
+async function withFreshCode(run: (code: string) => Promise<Row[]>): Promise<Row[]> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await run(newAccessCode());
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+    }
+  }
+  throw new Error("Couldn't make a unique access code.");
+}
+
+/**
+ * Changes a registration's status. Granting access makes an access code if
+ * the member doesn't have one yet. Any other status signs the member out of
+ * the members area on every device.
+ */
+export async function setRegistrationStatus(
+  id: string,
+  status: RegistrationStatus,
+): Promise<Registration | null> {
+  if (!ID_PATTERN.test(id)) return null;
+  let rows: Row[];
+  if (status === "granted") {
+    rows = await withFreshCode((code) =>
+      query<Row>(
+        `UPDATE registrations
+         SET status = 'granted', status_changed_at = now(),
+             access_code = COALESCE(access_code, $2)
+         WHERE id = $1
+         RETURNING ${COLUMNS}`,
+        [id, code],
+      ),
+    );
+  } else {
+    rows = await query<Row>(
+      `UPDATE registrations SET status = $2, status_changed_at = now()
+       WHERE id = $1
+       RETURNING ${COLUMNS}`,
+      [id, status],
+    );
+    await query(`DELETE FROM member_sessions WHERE registration_id = $1`, [id]);
+  }
+  return rows[0] ? toRegistration(rows[0]) : null;
+}
+
+/**
+ * Replaces a member's access code. The old code stops working and the member
+ * is signed out everywhere (useful if a code was shared).
+ */
+export async function replaceAccessCode(id: string): Promise<Registration | null> {
+  if (!ID_PATTERN.test(id)) return null;
+  const rows = await withFreshCode((code) =>
+    query<Row>(
+      `UPDATE registrations SET access_code = $2
+       WHERE id = $1 AND status = 'granted'
+       RETURNING ${COLUMNS}`,
+      [id, code],
+    ),
   );
+  await query(`DELETE FROM member_sessions WHERE registration_id = $1`, [id]);
+  return rows[0] ? toRegistration(rows[0]) : null;
+}
+
+/** The granted registration with this email and access code, if any. */
+export async function findMemberByCode(
+  email: string,
+  accessCode: string,
+): Promise<Registration | null> {
+  if (!email || !accessCode) return null;
+  const rows = await query<Row>(
+    `SELECT ${COLUMNS} FROM registrations
+     WHERE lower(email) = lower($1) AND access_code = $2 AND status = 'granted'
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [email, accessCode],
+  );
+  return rows[0] ? toRegistration(rows[0]) : null;
 }

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
-import { CheckIcon, CloseIcon, FileIcon } from "@/components/icons";
+import { CheckIcon, CloseIcon, FileIcon, KeyIcon } from "@/components/icons";
 import { LogoBadge } from "@/components/ui";
+import { formatAccessCode } from "@/lib/access-codes";
 import { adminConfigured, isAdmin } from "@/lib/admin-auth";
 import { databaseUrl } from "@/lib/db";
+import { memberLoginUrl, registrantEmailEnabled } from "@/lib/email";
 import {
   LIST_LIMIT,
   countByStatus,
@@ -14,7 +16,8 @@ import {
   type Registration,
   type RegistrationStatus,
 } from "@/lib/registrations";
-import { logout, updateStatus } from "./actions";
+import { ConfirmSubmit, CopyButton } from "./AccessTools";
+import { logout, replaceCode, updateStatus } from "./actions";
 import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
@@ -148,6 +151,17 @@ async function Dashboard({
           Download CSV
         </a>
       </div>
+
+      <p className="max-w-[60em] text-[15px] leading-[1.55] text-body">
+        <b>Grant access</b> makes the member an access code for the members area (
+        <Link href="/members/login" className="underline underline-offset-2 hover:text-rust">
+          /members
+        </Link>
+        ).{" "}
+        {registrantEmailEnabled()
+          ? "It's emailed to them automatically."
+          : "Email isn't set up, so send it yourself: Copy message gives you the sign-in link and code, ready to paste into a DM."}
+      </p>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <nav aria-label="Filter by status" className="flex flex-wrap gap-2">
@@ -283,12 +297,74 @@ function RegistrationRow({ row }: { row: Registration }) {
             </StatusButton>
           </>
         ) : (
-          <StatusButton id={row.id} status="pending">
+          <StatusButton
+            id={row.id}
+            status="pending"
+            confirm={
+              row.status === "granted"
+                ? `Move ${row.fullName} back to pending? They'll be signed out and can't open the sets until you grant access again.`
+                : undefined
+            }
+          >
             Move back to pending
           </StatusButton>
         )}
       </div>
+
+      {row.status === "granted" && <AccessStrip row={row} />}
     </li>
+  );
+}
+
+function AccessStrip({ row }: { row: Registration }) {
+  const code = row.accessCode ? formatAccessCode(row.accessCode) : null;
+  const loginUrl = memberLoginUrl(row.email);
+  const firstName = row.fullName.trim().split(/\s+/)[0];
+  const message = code
+    ? `Hi ${firstName}! Your IDLE Sets membership is active. Sign in at ${loginUrl} with your email (${row.email}) and this access code: ${code}\n\nYour access is personal, so please keep the code to yourself.`
+    : "";
+  return (
+    <div className="col-span-2 flex flex-col gap-3 rounded-2xl bg-cream px-4 py-3 lg:col-span-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="flex items-center gap-2 text-[13px] font-bold text-muted">
+          <KeyIcon size={16} />
+          Access code
+        </span>
+        {code ? (
+          <code className="text-[18px] font-extrabold tracking-[0.12em]">{code}</code>
+        ) : (
+          <span className="text-[14px] font-semibold text-rust">No code yet</span>
+        )}
+        <span className="text-[13px] text-muted">
+          {row.lastSeenAt
+            ? `Last opened the sets ${formatManila(row.lastSeenAt)}`
+            : code && registrantEmailEnabled()
+              ? "Code emailed · hasn't signed in yet"
+              : "Hasn't signed in yet"}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {code && <CopyButton text={message}>Copy message</CopyButton>}
+        {code && <CopyButton text={code}>Copy code</CopyButton>}
+        <form action={replaceCode}>
+          <input type="hidden" name="id" value={row.id} />
+          {code ? (
+            <ConfirmSubmit
+              message={`Make a new code for ${row.fullName}? Their current code stops working and they're signed out on every device.`}
+            >
+              New code
+            </ConfirmSubmit>
+          ) : (
+            <button
+              type="submit"
+              className="inline-flex h-9 cursor-pointer items-center rounded-full border-[1.5px] border-ink bg-ink px-3.5 text-[13px] font-bold text-white hover:bg-coal"
+            >
+              Make code
+            </button>
+          )}
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -296,13 +372,30 @@ function StatusButton({
   id,
   status,
   primary = false,
+  confirm,
   children,
 }: {
   id: string;
   status: RegistrationStatus;
   primary?: boolean;
+  /** Ask before submitting. */
+  confirm?: string;
   children: ReactNode;
 }) {
+  if (confirm) {
+    return (
+      <form action={updateStatus}>
+        <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="status" value={status} />
+        <ConfirmSubmit
+          message={confirm}
+          className="inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-paper px-4 text-[14px] font-bold hover:bg-white"
+        >
+          {children}
+        </ConfirmSubmit>
+      </form>
+    );
+  }
   return (
     <form action={updateStatus}>
       <input type="hidden" name="id" value={id} />
